@@ -1,0 +1,19 @@
+{
+	"name": "hw-TS1B",
+	"version": "1.0.0",
+	"author": "paul",
+	"dependencies": {
+		"@device.farm/si-stm32-timer": "1.0.7",
+		"@device.farm/si-stm32l051": "1.0.1"
+	},
+	"silicon": {
+		"sources": [
+			"ts1b.cpp"
+		],
+		"symbols": {
+			"ROM_START": "0x08000000",
+			"RAM_START": "0x20000000",
+			"RAM_SIZE": "2048"
+		}
+	}
+}
