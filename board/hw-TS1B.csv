@@ -1,18 +1,18 @@
-Quantity,Designator,Designation
-1,C1,68pF
-5,"C2,C3,C4,C5,C6",100n
-2,"C7,C8",15pF
-1,TH1,NTC 10k 3950 1%
-1,J2,Conn_01x02
-1,J1,3V3
-1,AE1,Antenna
-1,X1,SWD
-1,L1,180nH
-1,L2,36nH
-1,L3,18nH
-1,D1,LED RED
-1,X2,SG-210STF
-1,U1,STM32L011D3Px
-1,U2,CMT2110A
-1,R2,270R
-1,R1,10k 1%
+Id,Designator,Quantity,Designation,Supplier and ref
+1,U1,1,ATSAMD11C14A-SS,
+2,C1,1,68pF,
+3,"C3,C4,C5,C6,C9",5,100n,
+4,"C7,C8",2,15pF,
+5,TH1,1,NTC 10k 3950 1%,
+6,J2,1,Conn_01x02,
+7,J1,1,3V3,
+8,AE1,1,Antenna,
+9,X1,1,SWD,
+10,L1,1,180nH,
+11,L2,1,36nH,
+12,L3,1,18nH,
+13,D1,1,LED RED,
+14,X2,1,SG-210STF,
+15,U2,1,CMT2110A,
+16,R2,1,270R,
+17,R1,1,10k 1%,
