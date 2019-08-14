@@ -33,7 +33,7 @@ void safeBootInit(int bootPin, bool logic, int ledPin = -1)
 		target::PORT.OUTSET.setOUTSET(1 << ledPin);
 	}
 
-	for (volatile int w = 0; w < 20000; w++)
+	for (volatile int w = 0; w < 10000; w++)
 	{
 		if (((target::PORT.IN.getIN() >> bootPin) & 1) == logic)
 		{
@@ -96,9 +96,6 @@ public:
 	{
 		safeBootInit(25, false, LED_PIN);
 
-		for (;;)
-			;
-
 		timer.bind(this);
 
 		target::PM.APBBMASK.setPORT(1);
@@ -107,10 +104,12 @@ public:
 		target::PORT.DIRSET.setDIRSET(1 << RF_DATA_PIN);
 
 		target::PM.APBCMASK.setTC(1, 1);
-		// target::GCLK.GENCTRL = 1 << 16 | 1 << 19 | 1;
-		// target::GCLK.CLKCTRL = 2 << 14 | 0x12; // TC1 & TC2 clock from generator 1
+		target::SYSCTRL.XOSC.setENABLE(1);
+		
+		// vyhodit krystal, pouzit OSC8 + PLL a vystup 26MHz poslat na GCLK_IO[0]/PA08, podle DS strana 13.
 
-		//target::GCLK.CLKCTRL = 1 << 14 | 0x12; // TC1 & TC2 clock from generator 0
+		target::GCLK.GENCTRL = 1 << 16 | 6 << 8 | 1; // generator 1 sourced from XOSC
+		target::GCLK.CLKCTRL = 1 << 14 | 1 << 8 | 0x12; // TC1 & TC2 from generator 1
 
 		target::TC1.COUNT16.CC[0].setCC(1000);
 		target::TC1.COUNT16.CTRLA.setWAVEGEN(1); // top = CC0
@@ -126,6 +125,7 @@ public:
 void interruptHandlerTC1()
 {
 	target::TC1.COUNT16.INTFLAG.setOVF(1);
+	target::PORT.OUTTGL.setOUTTGL(1 << RF_DATA_PIN);
 	app.encoder.handleTimerInterrupt();
 }
 
