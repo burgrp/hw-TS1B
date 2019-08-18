@@ -87,8 +87,10 @@ public:
 		void onTimer()
 		{
 			target::PORT.OUTTGL.setOUTTGL(1 << LED_PIN);
-			outer->encoder.send((unsigned char *)"Hello", 5);
-			start(10);
+			if (target::PORT.IN.getIN() >> LED_PIN & 1) {
+				outer->encoder.send((unsigned char *)"Hello", 5);
+			}			
+			start(50);
 		}
 	} timer;
 
@@ -104,20 +106,22 @@ public:
 		target::PORT.DIRSET.setDIRSET(1 << RF_DATA_PIN);
 
 		target::PM.APBCMASK.setTC(1, 1);
-		target::SYSCTRL.XOSC.setENABLE(1);
 		
-		// vyhodit krystal, pouzit OSC8 + PLL a vystup 26MHz poslat na GCLK_IO[0]/PA08, podle DS strana 13.
+		// GCLK_IO[0] from PA8
+		target::PORT.PINCFG[8].setPMUXEN(1);
+		target::PORT.PINCFG[8].setINEN(1);
+		target::PORT.PMUX[4].setPMUXE(7);
 
-		target::GCLK.GENCTRL = 1 << 16 | 6 << 8 | 1; // generator 1 sourced from XOSC
-		target::GCLK.CLKCTRL = 1 << 14 | 1 << 8 | 0x12; // TC1 & TC2 from generator 1
+		target::GCLK.GENCTRL = 1 << 16 | 1 << 8 | 0; // generator 0 sourced from GCLK_IO[0]
+		target::GCLK.CLKCTRL = 1 << 14 | 0 << 8 | 0x12; // TC1 & TC2 from generator 0
 
-		target::TC1.COUNT16.CC[0].setCC(1000);
+		target::TC1.COUNT16.CC[0].setCC(13000); // ?????? 26000
 		target::TC1.COUNT16.CTRLA.setWAVEGEN(1); // top = CC0
 		target::TC1.COUNT16.CTRLA.setENABLE(1);
 		target::TC1.COUNT16.INTENSET.setOVF(1);
 
 		encoder.init(1);
-		timer.start(10);
+		timer.start(50);
 	}
 
 } app;
@@ -131,5 +135,6 @@ void interruptHandlerTC1()
 
 void initApplication()
 {
+	genericTimer::clkHz = 26E6;
 	app.init();
 }
