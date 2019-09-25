@@ -9,6 +9,7 @@
 	},
 	"silicon": {
 		"sources": [
+			"safeboot.cpp",
 			"app.cpp"
 		],
 		"symbols": {
