@@ -20,14 +20,8 @@ public:
 	public:
 		void setTimerInterrupt(bool enabled)
 		{
-			if (enabled)
-			{
-				target::NVIC.ISER.setSETENA(11 << target::interrupts::External::TC1);
-			}
-			else
-			{
-				target::NVIC.ICER.setCLRENA(11 << target::interrupts::External::TC1);
-			}
+			target::TC1.COUNT16.COUNT = 0;
+			target::TC1.COUNT16.CTRLA.setENABLE(enabled);				
 		}
 
 		void setRfPin(bool state)
@@ -49,10 +43,8 @@ public:
 		void onTimer()
 		{
 			target::PORT.OUTTGL.setOUTTGL(1 << LED_PIN);
-			if (target::PORT.IN.getIN() >> LED_PIN & 1) {
-				outer->encoder.send((unsigned char *)"Hello", 5);
-			}			
-			start(50);
+			outer->encoder.send((unsigned char *)"Hello", 5);
+			start(100);
 		}
 	} timer;
 
@@ -77,23 +69,28 @@ public:
 		target::GCLK.GENCTRL = 1 << 16 | 1 << 8 | 0; // generator 0 sourced from GCLK_IO[0]
 		target::GCLK.CLKCTRL = 1 << 14 | 0 << 8 | 0x12; // TC1 & TC2 from generator 0
 
-		target::TC1.COUNT16.CC[0].setCC(13000); // ?????? 26000
+		target::TC1.COUNT16.CC[0].setCC(26000 / 2); // 2000 symbols per second
 		target::TC1.COUNT16.CTRLA.setWAVEGEN(1); // top = CC0
-		target::TC1.COUNT16.CTRLA.setENABLE(1);
 		target::TC1.COUNT16.INTENSET.setOVF(1);
 
+		target::NVIC.ISER.setSETENA(1 << target::interrupts::External::TC1);
+
+		
+
+
 		encoder.init(1);
-		timer.start(50);
+		timer.start(100);		
 	}
 
 } app;
 
 void interruptHandlerTC1()
 {
-	target::TC1.COUNT16.INTFLAG.setOVF(1);
 	app.encoder.handleTimerInterrupt();
+	target::TC1.COUNT16.INTFLAG.setOVF(1);
 }
 
+// TODO:
 // NVIC 1 ne 11
 // sdilena Inner a safeBoot
 
